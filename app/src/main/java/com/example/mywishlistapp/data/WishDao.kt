@@ -8,7 +8,7 @@ import androidx.room.Query
 import androidx.room.Update
 import kotlinx.coroutines.flow.Flow
 
-@Dao  // Data Access Object And it ensures what are CRUD operations and how should they work
+@Dao  // Data Access Object And it ensures what are CRUD -> (Create Retrive Update Delete) operations and how should they work
 abstract class WishDao {
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)          //  create
