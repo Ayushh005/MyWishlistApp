@@ -25,6 +25,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.rememberDismissState
+import androidx.compose.material.rememberScaffoldState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -46,28 +47,31 @@ fun HomeView(
     viewModel: WishViewModel
 ){
     val context = LocalContext.current
+    val scaffoldState = rememberScaffoldState()
     Scaffold(
-        topBar = { AppBarView(title = "WishList" ) },       // top bar is composable so it is under {}
-
+        scaffoldState = scaffoldState,
+        topBar = {AppBarView(title= "WishList")},
         floatingActionButton = {
             FloatingActionButton(
                 modifier = Modifier.padding(all = 20.dp),
                 contentColor = Color.White,
                 backgroundColor = Color.Black,
                 onClick = {
+                  //  Toast.makeText(context, "FAButton Clicked", Toast.LENGTH_LONG).show()
                     navController.navigate(Screen.AddScreen.route + "/0L")
 
                 }) {
                 Icon(imageVector = Icons.Default.Add, contentDescription = null)
             }
         }
+
     ) {
         val wishlist = viewModel.getAllWishes.collectAsState(initial = listOf())
         LazyColumn(modifier = Modifier
             .fillMaxSize()
             .padding(it)){
-            items(wishlist.value, key = {wish -> wish.id}){
-                wish ->
+            items(wishlist.value, key={wish-> wish.id} ){
+                    wish ->
                 val dismissState = rememberDismissState(
                     confirmStateChange = {
                         if(it == DismissValue.DismissedToEnd || it == DismissValue.DismissedToStart){
@@ -76,43 +80,41 @@ fun HomeView(
                         true
                     }
                 )
-                
-                SwipeToDismiss(state = dismissState,
+
+                SwipeToDismiss(
+                    state = dismissState,
                     background = {
-                                 val color by animateColorAsState(
-                                     if (dismissState.dismissDirection == DismissDirection.EndToStart) Color.Red else Color.Transparent
-                                     , label = ""
-                                 )
-                        val alignment = Alignment.BottomEnd
+                        val color by animateColorAsState(
+                            if(dismissState.dismissDirection
+                                == DismissDirection.EndToStart) Color.Red else Color.Transparent
+                            ,label = ""
+                        )
+                        val alignment = Alignment.CenterEnd
                         Box(
-                            Modifier
-                                .fillMaxSize()
-                                .background(color)
-                                .padding(20.dp),
+                            Modifier.fillMaxSize().background(color).padding(horizontal = 20.dp),
                             contentAlignment = alignment
-                        ) {
-                            Icon(Icons.Default.Delete ,
+                        ){
+                            Icon(Icons.Default.Delete,
                                 contentDescription = "Delete Icon",
                                 tint = Color.White)
                         }
+
                     },
                     directions = setOf(DismissDirection.EndToStart),
-                    dismissThresholds = {FractionalThreshold(0.25f)},
+                    dismissThresholds = {FractionalThreshold(1f)},
                     dismissContent = {
                         WishItem(wish = wish) {
                             val id = wish.id
                             navController.navigate(Screen.AddScreen.route + "/$id")
                         }
                     }
-
                 )
-
-
-
             }
         }
     }
+
 }
+
 
 @Composable
 fun WishItem(wish: Wish, onClick: () -> Unit){
@@ -124,10 +126,10 @@ fun WishItem(wish: Wish, onClick: () -> Unit){
         },
         elevation = 10.dp,
         backgroundColor = Color.White
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text(text = wish.title, fontWeight = FontWeight.ExtraBold)
-                Text(text = wish.description)
+    ) {
+        Column(modifier = Modifier.padding(16.dp)){
+            Text(text = wish.title, fontWeight = FontWeight.ExtraBold)
+            Text(text = wish.description)
         }
     }
 }
